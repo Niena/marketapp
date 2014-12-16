@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+
+<head>
+    <link rel = "stylesheet" href = "jquery.mobile-1.4.4/jquery.mobile-1.4.4.min.css">
+    <script src = "jquery.mobile-1.4.4/jquery-1.11.1.js"></script>
+    <script src = "jquery.mobile-1.4.4/jquery.mobile-1.4.4.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- this makes the page mobile screen friendly-->
+    <script>
+
+
+        var traderName;
+        var loc = "Madina Central";
+        var item;
+        var itemId;
+        var newPrice;
+
+
+
+
+
+
+        function syncAjax(u) {
+            console.log(u);
+            var obj = $.ajax(
+                    {url: u,
+                        async: false
+                    }
+            );
+            return $.parseJSON(obj.responseText);
+        }
+
+
+        //returns a result object for one record
+        function getUser(name, password) {
+            var u = "market_actionpage.php?cmd=1&user=" + name + "&password=" + password;
+           
+            return syncAjax(u);
+
+
+        }
+
+
+        function getUserDetails() {
+            var user = document.getElementById("username").value;
+            var pass = document.getElementById("password").value;
+            var r = getUser(user, pass);
+            if (r.result == 1) {
+                traderName = r.trader.Username;
+              
+                window.location = "#pagethree";
+                document.getElementById("p3header").innerHTML = "Hi " + traderName + "!  Update Prices";
+                var myGoods = getAGood(traderName);
+                item = myGoods.trader.good;
+                itemId = myGoods.trader.goodNo;
+                
+
+                $("#goodText").prop("value", item);
+
+
+            }
+            else if (r.result == 0) {
+                alert("Details are incorrect!");
+                window.location.reload();
+            }
+
+
+        }
+
+
+        function addNewDetails() {
+            var user = document.getElementById("uName").value;
+            var pass = document.getElementById("uPassword").value;
+            var rePass = document.getElementById("passwordRe").value;
+            if (pass == rePass) {
+                var u = "market_actionpage.php?cmd=2&username=" + user + "&password=" + pass;
+                
+                var r = getUser(user, pass);
+                if (r.result == 1) {
+                    traderName = r.trader.Username;
+                    addGoods(traderName);
+                    return syncAjax(u);
+
+
+
+
+                }
+            }
+
+            else
+                alert("Password Mismatch!");
+        }
+
+
+        function logInUser() {
+            var r = addNewDetails();
+            if (r.result == 1) {
+                window.location = "marketapp.html";
+                window.location.reload();
+            }
+        }
+
+
+
+
+
+
+
+
+        function addGoods(user) {
+            //declare an checkbox array 
+
+            var chkArray = [];
+
+            //look for all checkboes that have a class 'chk' attached to it and check if it was checked 
+            $(".chk:checked").each(function () {
+                var m;
+                m = ($(this).val());
+                var u = "market_actionpage.php?cmd=3&username" + user + "&good=" + m + "&location=" + loc;
+                return syncAjax(u);
+               
+
+            });
+
+
+        }
+
+
+
+
+
+        function getAGood(user) {
+
+            var u = "market_actionpage.php?cmd=5&user=" + user;
+            return syncAjax(u);;
+
+
+        }
+
+
+
+        function createMany(nums) {
+            nums = 5;
+            var str = "";
+            for (i = 0; i < nums; i++) {
+                //  str += "<input type='text' id='txtNum[]' /> <br/>";
+                str += "<label for='price'>Today's Price</label><input type='text' name='price' id='price'>";
+
+                document.getElementById("txtBoxes").innerHTML = str;
+            }
+
+        }
+
+
+
+        function updatePrice() {
+            
+            newPrice = document.getElementById("price").value;;
+            u = "market_actionpage.php?cmd=4&id=" + itemId + "&good=" + item + "&price=" + newPrice + "&location=" + loc;
+            var r = syncAjax(u);
+            alert("Price updated!")
+            
+
+
+        }
+
+
+
+
+
+
+    </script>
+    <title></title>
+</head>
+<body>
+    <!--Page One-->
+    <div data-role = "page" id = "pageone">
+        <div data-role="header">
+            <a href="#pagetwo" id='signUpButton' class="ui-btn-right"  data-role="button" data-icon="">Sign up</a>
+            <h1>Market Homepage</h1>
+        </div>
+
+
+
+
+        <div role = "main" class = "ui-content">
+            <form >
+                <div class="ui-field-contain">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password">
+
+
+                    <input type="submit" data-inline="true" onclick="getUserDetails()" value="Sign in" data-theme="b">
+                </div>
+            </form>
+
+
+
+        </div>
+    </div>
+
+
+    <!--Page Two-->
+    <div data-role = "page" id = "pagetwo">
+        <div data-role = "header">
+            <div data-role = "navbar">
+                <ul>
+                    <li>Sign up</li>
+
+                    <li> <a href="#pageone" id="btnExit" class="ui-btn-right"  data-role="button" data-icon="">Exit</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <form >
+                <div class="ui-field-contain">
+                    <label for="uName">Username</label>
+                    <input type="text" name="uName" id="uName">
+                    <label for="uPassword">Password</label>
+                    <input type="password" name="password" id="uPassword">
+                    <label for="passwordRe">Retype Password</label>
+                    <input type="password" name="passwordRe" id="passwordRe">
+                    <fieldset data-role="controlgroup">
+                        <legend>Goods</legend>
+                        <label for="tomatoes">Tomatoes</label>
+                        <input type="checkbox" id="tomatoes" class="chk" value="tomatoes">
+                        <label for="gari">Gari</label>
+                        <input type="checkbox" id="gari" class="chk" value="gari">
+                        <label for="kokonte">Kokonte</label>
+                        <input type="checkbox" id="kokonte" class="chk" value="kokonte">
+                        <label for="cassava">Cassava</label>
+                        <input type="checkbox" id="cassava" class="chk" value="cassava">
+                        <label for="sugar">Sugar</label>
+                        <input type="checkbox" id="sugar" class="chk" value="sugar">
+                    </fieldset>
+                    <input type="submit" data-inline="true" onclick="logInUser()" value="Submit" data-theme="b">
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div data-role = "page" id = "pagethree">
+        <div data-role="header">
+            <a href="#pageone" id= "btnSignOut" class="ui-btn-right"  data-role="button" data-icon="">Sign out</a>
+            <h1 id="p3header">Update Prices</h1>
+        </div>
+
+        <div>
+            <form>
+                <div  class="ui-field-contain"><div id="txtBoxes">
+                        <label for="goodText">Good</label>
+                        <input type="text" name="goodText" id="goodText">
+                        <label for="price">Today's Price</label>
+                        <input type="text" name="price" id="price">
+                    </div>
+                    <input type="submit" data-inline="true" onclick="updatePrice()" value="Update" data-theme="b">
+
+                </div>
+
+            </form>
+
+
+        </div>
+    </div>
+</body>
+</html>
