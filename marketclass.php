@@ -3,39 +3,42 @@
 
 include_once("adb.php");
 
-class marketClass extends adb {
+class marketclass extends adb {
 
-    function marketClass() {
+    function marketclass() {
         adb::adb();
     }
 
-    function add_trader($username, $password) {
-        return $this->query("INSERT INTO `market_people`(`username`,`user_password`) "
-                        . "VALUES ('$username','$password')");
+    function addUser($name,$password) {
+        return $this->query("INSERT INTO `market_people`(`username`, `user_password`)"
+                . " VALUES ('$name','$password')");
     }
 
-    function getTraderDetails($username, $password) {
-        return $this->query("select username from market_people where username='$username'
-                && user_password='$password'");
+    function getUser($name,$password) {
+        return $this->query("SELECT `username` FROM `market_people` WHERE username='$name' "
+                . "and user_password='$password'");
     }
 
-    function addGoods($trader, $good,$location/*,$date*/) {
-        return $this->query("INSERT INTO `goodstable`(`trader`, `good`,`location`,`date`)"
-                . "VALUES ('$trader','$good','$location',CURDATE())");
+    function addGood($trader, $good) {
+        return $this->query("INSERT INTO `goodstable`(`trader`, `good`)"
+                . " VALUES ('$trader', '$good')");
+    }
+
+    function updateGood($goodNo, $price, $lat, $long) {
+        return $this->query("UPDATE `goodstable` SET `price`= $price,`lat`=$lat,`long`=$long,`date`=CURDATE() WHERE `goodNo`=$goodNo");
     }
 
     function getGoods($username) {
-        return $this->query("SELECT goodNo,trader,good,price,location,date FROM `goodstable` WHERE trader='$username'");
-       
+        return $this->query("SELECT * FROM `goodstable` WHERE trader='$username' ");
+               
     }
+    
+    function updatePrice($goodNo,$price){
+        
+    return $this->query("UPDATE `goodstable` SET `price`= $price,`date`=CURDATE() WHERE `goodNo`=$goodNo");
+    }
+    
 
-    function updateGoods($id, $good, $price,$location,$date) {
-        return $this->query("UPDATE `goodstable` SET `good`='$good',`price`=$price,`location`='$location',`date`='$date' WHERE goodNo=$id");
-    }
-
-    function getAGoods() {
-        return $this->query("Select trader,good,price,location,date FROM `goodstable` order by date ");
-    }
 }
 
 ?>
