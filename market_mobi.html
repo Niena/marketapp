@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel = "stylesheet" href = "jquery.mobile-1.4.4.min.css">
+        <script src = "jquery-1.11.1.js"></script>
+        <script src = "jquery.mobile-1.4.4.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1"><!-- this makes the page mobile screen friendly-->
+        <script>
+
+            var username;
+            function syncAjax(u) {
+                var obj = $.ajax(
+                        {url: u,
+                            async: false
+                        }
+                );
+                return $.parseJSON(obj.responseText);
+
+
+            }
+
+
+            function getDetails(uname, pword) {
+                var u = "market_actionpage.php?cmd=1&username=" + uname + "&password=" + pword;
+                return syncAjax(u);
+
+
+            }
+
+
+
+            function login() {
+                uname = document.getElementById("username").value;
+                pword = document.getElementById("password").value;
+                var r = getDetails(uname, pword);
+                if (r.result == 1) {
+                    window.location = "#pageTwo";
+                    username = uname;
+
+                }
+                else
+                    alert("Invalid Credentials!");
+
+
+            }
+
+            function addDetails(username, password) {
+
+                var u = "market_actionpage.php?cmd=2&username=" + username + "&password=" + password;
+                return  syncAjax(u);
+            }
+
+            function addSGoods(name) {
+
+                $(".chk:checked").each(function () {
+                    var m;
+                    m = ($(this).val());
+                    var u = "market_actionpage.php?cmd=3&trader=" + name + "&good=" + m;
+                    syncAjax(u);
+
+
+                });
+
+            }
+
+
+
+
+            function signUp() {
+                var name1 = document.getElementById("newUName").value;
+                var name2 = document.getElementById("newPWord").value;
+                var r = addDetails(name1, name2);
+
+
+                if (r.result == 1) {
+
+                    addSGoods(name1);
+                    alert("Sign up successful!");
+                    window.location = "#pageOne";
+
+
+                }
+                else
+                    alert("Sign Up failed! username exists!");
+
+
+            }
+
+			function getGoods(usname) {
+                var u = "market_actionpage.php?cmd=6&username=" + usname;
+                return syncAjax(u);
+
+            }
+            function getList() {
+                var r = getGoods(username);
+                var str;
+                var output;
+                output = "<ul data-role='goodsList'>";
+
+                for (i in r.details)
+                {
+                    output += "<li><a href='#'>" + r.details[i].goods + "-- " +
+                            r.details[i].price + "</a></li>";
+                }
+
+                output += "</ul>";
+                document.getElementById("theList").innerHTML = output;
+
+
+            }
+
+
+
+
+
+
+
+        </script>
+    </head>
+    <body>
+
+        <!--Page One-->
+        <div data-role = "page" id = "pageOne">
+            <div data-role="header">
+                <a href="#pageFour" id='signUpButton' class="ui-btn-right"  data-role="button" data-icon="">Sign up</a>
+                <h1>Market</h1>
+            </div>
+
+
+
+
+            <div role = "main" class = "ui-content">
+
+                 <div data-role="fieldcontain">
+                    <form>
+                        <label for="username">Username:</label>	
+                         <input type="text"  id="username">
+                        <label for="password">Password:</label>	
+                        <input type="password"  id="password">
+                        <input type="submit" data-inline="true" onclick="login()" value="Enter" data-theme="b">
+
+
+
+                    </form>	
+                </div>
+            </div>
+
+            <div data-role="footer" >
+
+                <h1>market.com</h1>
+
+            </div>
+        </div>
+
+        <!--Page Two-->
+        <div data-role = "page" id = "pageTwo" onload="getList()">
+            <div data-role = "header">
+                <a href="#pageOne" class="ui-btn-right"  data-role="button" data-icon="">Sign out</a>
+            </div>
+
+
+            <div  role = "main" class = "ui-content">
+
+                 <div id ="theList" >
+                    
+
+                </div>
+            </div>
+
+            <div data-role="footer" >
+
+                <h1>market.com</h1>
+
+            </div>
+        </div>
+
+
+
+        <!--Page Three-->
+        <div data-role = "page" id = "pageThree">
+            <div data-role = "header">
+                <a href="#pageOne" id='signUpButton' class="ui-btn-right"  data-role="button" data-icon="">Sign out</a>
+            </div>
+
+
+            <div role = "main" class = "ui-content">
+
+                 <div data-role="fieldcontain">
+
+                </div>
+            </div>
+
+            <div data-role="footer" >
+
+                <h1>market.com</h1>
+
+            </div>
+        </div>
+
+        <!--Page Four-->
+        <div data-role = "page" id = "pageFour">
+            <div data-role = "header">
+            </div>
+
+
+            <div role = "main" class = "ui-content">
+
+                 <div data-role="fieldcontain">
+                    <form>
+                        <label for="newUName">Username:</label>	
+                         <input type="text"  id="newUName">
+                        <label for="newPWord">Password:</label>	
+                        <input type="password"  id="newPWord">
+                        <fieldset data-role="controlgroup">
+                            <legend>Goods</legend>
+                            <label for="tomatoes">tomatoes</label>
+                            <input type="checkbox" id="tomatoes" class="chk" value="tomatoes">
+                            <label for="rice">rice</label>
+                            <input type="checkbox" id="rice" class="chk" value="rice">
+                            <label for="fish">fish</label>
+                            <input type="checkbox" id="fish" class="chk" value="fish">
+                            <label for="cassava">cassava</label>
+                            <input type="checkbox" id="cassava" class="chk" value="cassava">
+                            <label for="yam">yam</label>
+                            <input type="checkbox" id="yam" class="chk" value="yam">
+                        </fieldset>
+                        <input type="submit" data-inline="true" onclick="signUp()" value="Enter" data-theme="b">
+
+
+                    </form>	
+                </div>
+            </div>
+
+            <div data-role="footer" >
+
+                <h1>market.com</h1>
+
+            </div>
+        </div>
+
+
+
+    </body>
+</html>
